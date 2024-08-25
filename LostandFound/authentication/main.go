@@ -11,6 +11,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/register", CreateNewUser).Methods("POST")
+	r.HandleFunc("/login", loginUser).Methods("POST")
 
 	log.Printf("Server starting at 9090")
 	log.Fatal(http.ListenAndServe(":9090", r))
