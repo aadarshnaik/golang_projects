@@ -65,7 +65,8 @@ func ValidateToken(jwttoken string, secret string) bool {
 		return false
 	}
 	claims := token.Claims.(jwt.MapClaims)
-	// username := claims["username"].(string)
+	//If we get the username in request we can validate it as well using this
+	username := claims["username"].(string)
 	// pincode := claims["pincode"].(int)
 	expiryTime := claims["expiryTime"].(float64)
 
@@ -75,6 +76,11 @@ func ValidateToken(jwttoken string, secret string) bool {
 		fmt.Println("Token has expired")
 		return false
 	}
+	// log.Println("Username: ", username)
 	log.Println("Token is valid")
-	return true
+	if username != "" {
+		return true
+	} else {
+		return false
+	}
 }
