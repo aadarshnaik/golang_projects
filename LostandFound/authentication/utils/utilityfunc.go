@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func ReadRequestBody(r *http.Request, a interface{}) {
+func ParseJSONBody(r *http.Request, a interface{}) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return

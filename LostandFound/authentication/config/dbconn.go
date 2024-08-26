@@ -16,5 +16,11 @@ func InitializeDB() *gorm.DB {
 	if err != nil {
 		panic(err)
 	}
+	// sqlDB, err := db.DB()
+	// if err != nil {
+	// 	log.Fatalln("Failed to get sql.DB from gorm.DB:", err)
+	// }
+	// // Close the connection when you're done
+	// defer sqlDB.Close()
 	return db
 }
