@@ -25,16 +25,19 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	//One DB Conn
 	db := config.InitializeDB()
-	var dataFromDB *models.User //Read DB data from here
-	errr := db.Where("username = ?", userData.Username).First(&dataFromDB).Error
+	var dataFromDB models.User //Read DB data from here
+	// testFromDB := interface{}
+	errr := db.Where("username = ?", userData.Username).Limit(1).Find(&dataFromDB).Error
+	log.Println("CreatedAt: ", dataFromDB.CreatedAt)
+	log.Println("CreatedAt: ", dataFromDB.UpdatedAt)
 	if errr != nil {
-		log.Println("Error fetching password hash:", errr)
+		log.Println("Error fetching data:", errr)
 		return
 	}
 	expiryTime := time.Now().Add(time.Hour * 24).Unix()
 
-	if service.ValidateCredentials(db, userData, dataFromDB) {
-		jwtToken := service.GenJWT(dataFromDB, expiryTime, secretKey)
+	if service.ValidateCredentials(db, userData, &dataFromDB) {
+		jwtToken := service.GenJWT(&dataFromDB, expiryTime, secretKey)
 		w.Header().Set("Authorization", "Bearer "+jwtToken)
 
 		w.WriteHeader(http.StatusOK)

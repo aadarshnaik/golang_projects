@@ -12,13 +12,6 @@ import (
 )
 
 func ValidateCredentials(db *gorm.DB, user *models.User, user_from_db *models.User) bool {
-	// db := config.InitializeDB()
-	// var password_hash string
-	// errr := db.Where("username = ?", user.Username).Pluck("passwordhash", &password_hash)
-
-	// log.Println("errr:", errr)
-	// log.Println("Username: ", user_from_db.Username)
-	// log.Println("Pincode: ", user_from_db.Pincode)
 
 	passwordBytes, err := base64.StdEncoding.DecodeString(user_from_db.Passwordhash)
 	// base64.StdEncoding.DecodeString(password_hash)

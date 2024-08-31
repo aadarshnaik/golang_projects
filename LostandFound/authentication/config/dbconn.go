@@ -10,7 +10,11 @@ import (
 func InitializeDB() *gorm.DB {
 	username := "root"
 	password := "password"
-	dsn := fmt.Sprintf("%s:%s@/lostandfound?charset=utf8&parseTime=True&loc=Local", username, password)
+	// dsn := fmt.Sprintf("%s:%s@/lostandfound?charset=utf8&parseTime=True&loc=Local", username, password)
+
+	//For Docker
+	dsn := fmt.Sprintf("%s:%s@tcp(host.docker.internal:3306)/lostandfound?charset=utf8&parseTime=True&loc=Local", username, password)
+
 	// dsn := "root:Aadarsh98@/lostandfound?charset=utf8&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
