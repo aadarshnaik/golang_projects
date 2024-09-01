@@ -28,13 +28,13 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	var dataFromDB models.User //Read DB data from here
 	// testFromDB := interface{}
 	errr := db.Where("username = ?", userData.Username).Limit(1).Find(&dataFromDB).Error
-	log.Println("CreatedAt: ", dataFromDB.CreatedAt)
-	log.Println("CreatedAt: ", dataFromDB.UpdatedAt)
+	// log.Println("CreatedAt: ", dataFromDB.CreatedAt)
+	// log.Println("CreatedAt: ", dataFromDB.UpdatedAt)
 	if errr != nil {
 		log.Println("Error fetching data:", errr)
 		return
 	}
-	expiryTime := time.Now().Add(time.Hour * 24).Unix()
+	expiryTime := time.Now().Add(time.Minute * 5).Unix()
 
 	if service.ValidateCredentials(db, userData, &dataFromDB) {
 		jwtToken := service.GenJWT(&dataFromDB, expiryTime, secretKey)
@@ -71,8 +71,17 @@ func ValidateUser(w http.ResponseWriter, r *http.Request) {
 
 	tokenheader := r.Header.Get("Authorization")
 	jwtToken := strings.Fields(tokenheader)[1]
+	userData := &models.ValidationResponse{}
+	utils.ParseJSONBody(r, userData)
 
-	if service.ValidateToken(jwtToken, string(secretKey)) {
+	req_username := userData.Username
+	if req_username == "" {
+		log.Println("Error: Missing required fields in request body")
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+
+	if service.ValidateToken(jwtToken, string(secretKey), req_username) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("This token is Validated"))
 	} else {

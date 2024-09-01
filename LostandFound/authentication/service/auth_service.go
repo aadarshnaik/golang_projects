@@ -44,7 +44,7 @@ func GenJWT(user *models.User, expiry int64, secretkey []byte) string {
 	return signedToken
 }
 
-func ValidateToken(jwttoken string, secret string) bool {
+func ValidateToken(jwttoken string, secret string, req_username string) bool {
 
 	token, err := jwt.Parse(jwttoken, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
@@ -58,7 +58,6 @@ func ValidateToken(jwttoken string, secret string) bool {
 		return false
 	}
 	claims := token.Claims.(jwt.MapClaims)
-	//If we get the username in request we can validate it as well using this
 	username := claims["username"].(string)
 	// pincode := claims["pincode"].(int)
 	expiryTime := claims["expiryTime"].(float64)
@@ -67,6 +66,11 @@ func ValidateToken(jwttoken string, secret string) bool {
 
 	if time.Now().Unix() > int64(expiryTime) {
 		fmt.Println("Token has expired")
+		return false
+	}
+
+	if req_username != username {
+		log.Println("Username mismatch")
 		return false
 	}
 	// log.Println("Username: ", username)

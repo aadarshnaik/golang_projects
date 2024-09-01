@@ -2,23 +2,25 @@ package config
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func InitializeDB() *gorm.DB {
-	username := "root"
-	password := "password"
+	username := os.Getenv("DBUSER")
+	password := os.Getenv("DBPASSWORD")
+	dbhostname := os.Getenv("DBHOST")
 	// dsn := fmt.Sprintf("%s:%s@/lostandfound?charset=utf8&parseTime=True&loc=Local", username, password)
 
 	//For Docker
-	dsn := fmt.Sprintf("%s:%s@tcp(host.docker.internal:3306)/lostandfound?charset=utf8&parseTime=True&loc=Local", username, password)
-
-	// dsn := "root:Aadarsh98@/lostandfound?charset=utf8&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/lostandfound?charset=utf8&parseTime=True&loc=Local", username, password, dbhostname)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		log.Println("connection to Db couldn't be established !")
+		os.Exit(1)
 	}
 	// sqlDB, err := db.DB()
 	// if err != nil {

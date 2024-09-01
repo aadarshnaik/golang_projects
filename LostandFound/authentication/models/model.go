@@ -14,3 +14,7 @@ type User struct {
 	UpdatedAt    time.Time      `json:"updated_at" gorm:"type:DATETIME"`
 	DeletedAt    gorm.DeletedAt `json:"deleted_at" gorm:"index,type:DATETIME"`
 }
+
+type ValidationResponse struct {
+	Username string `json:"username"`
+}
