@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: go-authn
+  labels:
+    app: myapp
+    type: backend
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: authn
+      labels:
+        type: backend
+    spec:
+      containers:
+        - name: go-authn
+          image: aadarshnaik/go-authn:v1-amd64
+

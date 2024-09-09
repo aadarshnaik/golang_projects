@@ -3,7 +3,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o authentication .
+RUN GOARCH=amd64 go build -o authentication .
 
 FROM alpine:3.20
 WORKDIR /app

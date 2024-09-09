@@ -1,29 +1,29 @@
 package service
 
 import (
-	"encoding/base64"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/models"
 	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 func ValidateCredentials(db *gorm.DB, user *models.User, user_from_db *models.User) bool {
 
-	passwordBytes, err := base64.StdEncoding.DecodeString(user_from_db.Passwordhash)
+	password := user_from_db.Passwordhash
+	passwordBytes := []byte(password) //This is becrypted password hash
+	saved_salt := user_from_db.Salt
 	// base64.StdEncoding.DecodeString(password_hash)
+	userpass := user.Passwordhash + saved_salt
+	err := bcrypt.CompareHashAndPassword(passwordBytes, []byte(userpass))
 	if err != nil {
-		log.Println("Error decoding password hash:", err)
-		return false
-	}
-	if user.Passwordhash != string(passwordBytes) {
-		log.Println("User Unauthorized")
+		log.Println("Password does not match!")
 		return false
 	} else {
-		log.Println("User Authorized")
+		log.Println("Password match!")
 		return true
 	}
 }

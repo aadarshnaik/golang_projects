@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: go-authn
+  labels:
+    app: go-authn
+
+spec:
+  containers:
+    - name: authn
+      image: aadarshnaik/go-authn:v1
+      ports:
+        - containerPort: 9090
+      resources:
+            requests:
+              memory: "128Mi"    # Request a minimum of 128 MB of memory
+              cpu: "500m"        # Request a minimum of 0.5 CPU cores
+            limits:
+              memory: "256Mi"    # Limit container to 256 MB of memory
+              cpu: "1"           # Limit container to 1 CPU core

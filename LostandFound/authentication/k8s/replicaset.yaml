@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: go-authn
+  labels:
+    app: myapp
+    type: backend
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: authn
+      labels:
+        type: backend
+    spec:
+      containers:
+        - name: go-authn
+          image: aadarshnaik/go-authn:v1-amd64
+  selector:
+    matchLabels:
+      type: backend

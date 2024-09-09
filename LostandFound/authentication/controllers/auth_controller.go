@@ -26,7 +26,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	//One DB Conn
 	db := config.InitializeDB()
 	var dataFromDB models.User //Read DB data from here
-	// testFromDB := interface{}
 	errr := db.Where("username = ?", userData.Username).Limit(1).Find(&dataFromDB).Error
 	// log.Println("CreatedAt: ", dataFromDB.CreatedAt)
 	// log.Println("CreatedAt: ", dataFromDB.UpdatedAt)
@@ -44,26 +43,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, "Invalid Credentials", http.StatusUnauthorized)
 	}
-
-	// JWT Token Generation
-	// var user models.User
-
-	// log.Println("User Authorised")
-
-	// type res struct {
-	// 	Token      string `json:"token"`
-	// 	ExpiryTime int64  `json:"expiryTime"`
-	// }
-
-	// t := &res{Token: jwtToken, ExpiryTime: expiryTime}
-
-	// if out, err := json.MarshalIndent(t, "", " "); err != nil {
-	// 	http.Error(w, "Error marshalling response", http.StatusInternalServerError)
-	// 	return
-	// } else {
-	// 	w.Header().Set("Content-Type", "application/json")
-	// 	w.Write(out)
-	// }
 
 }
 
