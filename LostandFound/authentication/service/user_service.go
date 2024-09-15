@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/config"
 	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/models"
 	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/utils"
 	"golang.org/x/crypto/bcrypt"
@@ -25,14 +24,9 @@ func userExists(db *gorm.DB, user *models.User) bool {
 	return true
 }
 
-func CreateUser(user *models.User) error {
-	// createUser := &models.User{}
-	db := config.InitializeDB()
-	db.AutoMigrate(&models.User{})
-	// log.Println(userExists(user))
+func CreateUser(user *models.User, db *gorm.DB) error {
 	if userExists(db, user) {
 		log.Println("User already exists")
-		// return fmt.Errorf("user with the same username or pincode already exists")
 	} else if user.Username == "" || user.Passwordhash == "" || user.Pincode == 0 {
 		return fmt.Errorf("some necessary field missing")
 	}
@@ -53,9 +47,8 @@ func CreateUser(user *models.User) error {
 	if err != nil {
 		log.Println("Error creating user:", err)
 		return fmt.Errorf("error creating user")
-	} else {
-		log.Printf("New User Created at %v with username: %v and password: %v ", time.Now(), user.Username, string(passwordBytes))
 	}
+	log.Printf("New User Created at %v with username: %v and password: %v ", time.Now(), user.Username, string(passwordBytes))
 
 	return nil
 }

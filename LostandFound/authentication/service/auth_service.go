@@ -22,13 +22,12 @@ func ValidateCredentials(db *gorm.DB, user *models.User, user_from_db *models.Us
 	if err != nil {
 		log.Println("Password does not match!")
 		return false
-	} else {
-		log.Println("Password match!")
-		return true
 	}
+	log.Println("Password match!")
+	return true
 }
 
-func GenJWT(user *models.User, expiry int64, secretkey []byte) string {
+func GenJWT(user *models.User, expiry int64, secretkey []byte) (string, error) {
 	claims := jwt.MapClaims{
 		"expiryTime": expiry,
 		"username":   user.Username,
@@ -39,9 +38,9 @@ func GenJWT(user *models.User, expiry int64, secretkey []byte) string {
 	signedToken, err := token.SignedString(secretkey)
 	if err != nil {
 		log.Println("Error generating JWT token:", err)
-		return ""
+		return "", nil
 	}
-	return signedToken
+	return signedToken, nil
 }
 
 func ValidateToken(jwttoken string, secret string, req_username string) bool {
@@ -59,10 +58,7 @@ func ValidateToken(jwttoken string, secret string, req_username string) bool {
 	}
 	claims := token.Claims.(jwt.MapClaims)
 	username := claims["username"].(string)
-	// pincode := claims["pincode"].(int)
 	expiryTime := claims["expiryTime"].(float64)
-
-	// log.Printf("time.Now().Unix(): %T : %v ", time.Now().Unix(), time.Now().Unix())
 
 	if time.Now().Unix() > int64(expiryTime) {
 		fmt.Println("Token has expired")
@@ -73,8 +69,7 @@ func ValidateToken(jwttoken string, secret string, req_username string) bool {
 		log.Println("Username mismatch")
 		return false
 	}
-	// log.Println("Username: ", username)
-	log.Println("Token is valid")
+	log.Printf("Token is valid for Username: %s", username)
 	if username != "" {
 		return true
 	} else {

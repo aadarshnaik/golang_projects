@@ -6,7 +6,7 @@ run:
 	docker build -t aadarshnaik/go-authn:v1-amd64 .
 	docker run -d --rm --name authn -p 9090:9090 --network my_network --env-file envr_var.env aadarshnaik/go-authn:v1-amd64
 
-rm_docker_network:
+network-del:
 	docker network rm my_network
 
-.Phony: build run mysql rm_docker_network
+.Phony: build run mysql network-del

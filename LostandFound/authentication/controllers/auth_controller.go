@@ -3,6 +3,7 @@ package controller
 import (
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -12,7 +13,8 @@ import (
 	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/utils"
 )
 
-var secretKey = []byte("mysecretstring")
+var env_secretKey = os.Getenv("SECRET_KEY")
+var secretKey = []byte(env_secretKey)
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
@@ -27,18 +29,19 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	db := config.InitializeDB()
 	var dataFromDB models.User //Read DB data from here
 	errr := db.Where("username = ?", userData.Username).Limit(1).Find(&dataFromDB).Error
-	// log.Println("CreatedAt: ", dataFromDB.CreatedAt)
-	// log.Println("CreatedAt: ", dataFromDB.UpdatedAt)
 	if errr != nil {
 		log.Println("Error fetching data:", errr)
 		return
 	}
-	expiryTime := time.Now().Add(time.Minute * 5).Unix()
+	expiryTime := time.Now().Add(time.Minute * 60).Unix()
 
 	if service.ValidateCredentials(db, userData, &dataFromDB) {
-		jwtToken := service.GenJWT(&dataFromDB, expiryTime, secretKey)
+		jwtToken, err := service.GenJWT(&dataFromDB, expiryTime, secretKey)
+		if err != nil {
+			log.Println("Token Generation error!")
+			return
+		}
 		w.Header().Set("Authorization", "Bearer "+jwtToken)
-
 		w.WriteHeader(http.StatusOK)
 	} else {
 		http.Error(w, "Invalid Credentials", http.StatusUnauthorized)
