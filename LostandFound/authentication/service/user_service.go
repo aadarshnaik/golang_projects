@@ -12,24 +12,39 @@ import (
 	"gorm.io/gorm"
 )
 
-func userExists(db *gorm.DB, user *models.User) bool {
-	err := db.Where("username = ?", user.Username).First(user).Error
-	// log.Println("err: ", err)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Printf("User with username '%s' not found.", user.Username)
-			return false
-		}
-	}
-	return true
-}
+// func userExists(db *gorm.DB, user *models.User) bool {
+// 	err := db.Where("username = ?", user.Username).First(user).Error
+// 	// log.Println("err: ", err)
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			log.Printf("User with username '%s' not found.", user.Username)
+// 			return false
+// 		}
+// 	}
+// 	return true
+// }
 
 func CreateUser(user *models.User, db *gorm.DB) error {
-	if userExists(db, user) {
+
+	existingUser := &models.User{}
+	err := db.Where("username = ?", user.Username).First(*existingUser).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println("User is safe to Create !")
+		} else {
+			return err
+		}
+	} else {
 		log.Println("User already exists")
-	} else if user.Username == "" || user.Passwordhash == "" || user.Pincode == 0 {
-		return fmt.Errorf("some necessary field missing")
+		return errors.New("username already taken")
 	}
+
+	// if userExists(db, user) {
+	// 	log.Println("User already exists")
+	// } else if user.Username == "" || user.Passwordhash == "" || user.Pincode == 0 {
+	// 	return fmt.Errorf("some necessary field missing")
+	// }
+
 	passwordBytes := user.Passwordhash
 	salt := utils.GenerateSalt(8)
 	passwordBytes = passwordBytes + string(salt)

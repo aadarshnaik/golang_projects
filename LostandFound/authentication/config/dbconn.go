@@ -10,7 +10,12 @@ import (
 	"gorm.io/gorm"
 )
 
+var db *gorm.DB
+
 func InitializeDB() *gorm.DB {
+	if db != nil {
+		return db
+	}
 
 	// dsn := fmt.Sprintf("%s:%s@/lostandfound?charset=utf8&parseTime=True&loc=Local", username, password)
 	// dsn := "root:password@/lostandfound?charset=utf8&parseTime=True&loc=Local"
@@ -25,12 +30,13 @@ func InitializeDB() *gorm.DB {
 		log.Println("connection to Db couldn't be established !")
 		os.Exit(1)
 	}
-	// sqlDB, err := db.DB()
-	// if err != nil {
-	// 	log.Fatalln("Failed to get sql.DB from gorm.DB:", err)
-	// }
-	// // Close the connection when you're done
-	// defer sqlDB.Close()
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalln("Failed to get sql.DB from gorm.DB:", err)
+	}
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(25)
 	return db
 }
 
