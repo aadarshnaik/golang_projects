@@ -1,7 +1,0 @@
-This is the textfile 
-This is used as in input to the 
-
-ccwc tool written in golang
-This is a test file 
-
-
