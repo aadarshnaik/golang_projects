@@ -27,7 +27,7 @@ func ValidateCredentials(db *gorm.DB, user *models.User, user_from_db *models.Us
 	return true
 }
 
-func GenJWT(user *models.User, expiry int64, secretkey []byte) string {
+func GenJWT(user *models.User, expiry int64, secretkey []byte) (string, error) {
 	claims := jwt.MapClaims{
 		"expiryTime": expiry,
 		"username":   user.Username,
@@ -38,9 +38,9 @@ func GenJWT(user *models.User, expiry int64, secretkey []byte) string {
 	signedToken, err := token.SignedString(secretkey)
 	if err != nil {
 		log.Println("Error generating JWT token:", err)
-		return ""
+		return "", nil
 	}
-	return signedToken
+	return signedToken, nil
 }
 
 func ValidateToken(jwttoken string, secret string, req_username string) bool {

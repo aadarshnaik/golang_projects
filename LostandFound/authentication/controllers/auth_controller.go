@@ -36,7 +36,11 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	expiryTime := time.Now().Add(time.Minute * 60).Unix()
 
 	if service.ValidateCredentials(db, userData, &dataFromDB) {
-		jwtToken := service.GenJWT(&dataFromDB, expiryTime, secretKey)
+		jwtToken, err := service.GenJWT(&dataFromDB, expiryTime, secretKey)
+		if err != nil {
+			log.Println("Generate token error !")
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		w.Header().Set("Authorization", "Bearer "+jwtToken)
 		w.WriteHeader(http.StatusOK)
 	} else {
