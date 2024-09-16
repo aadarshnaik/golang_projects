@@ -27,16 +27,13 @@ import (
 func CreateUser(user *models.User, db *gorm.DB) error {
 
 	existingUser := &models.User{}
-	err := db.Where("username = ?", user.Username).First(*existingUser).Error
+	err := db.Where("username = ?", user.Username).First(existingUser).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Println("User is safe to Create !")
+			log.Printf("User with username '%s' not found.", user.Username)
 		} else {
-			return err
+			log.Println("User already exists")
 		}
-	} else {
-		log.Println("User already exists")
-		return errors.New("username already taken")
 	}
 
 	// if userExists(db, user) {
@@ -49,9 +46,6 @@ func CreateUser(user *models.User, db *gorm.DB) error {
 	salt := utils.GenerateSalt(8)
 	passwordBytes = passwordBytes + string(salt)
 	password := []byte(passwordBytes)
-	log.Println("PasswordWithSalt: ", passwordBytes)
-
-	// encodedPassword := base64.StdEncoding.EncodeToString(passwordBytes)
 	encodedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Println(err)

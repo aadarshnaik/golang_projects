@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/models"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -27,7 +27,7 @@ func ValidateCredentials(db *gorm.DB, user *models.User, user_from_db *models.Us
 	return true
 }
 
-func GenJWT(user *models.User, expiry int64, secretkey []byte) (string, error) {
+func GenJWT(user *models.User, expiry int64, secretkey []byte) string {
 	claims := jwt.MapClaims{
 		"expiryTime": expiry,
 		"username":   user.Username,
@@ -38,9 +38,9 @@ func GenJWT(user *models.User, expiry int64, secretkey []byte) (string, error) {
 	signedToken, err := token.SignedString(secretkey)
 	if err != nil {
 		log.Println("Error generating JWT token:", err)
-		return "", nil
+		return ""
 	}
-	return signedToken, nil
+	return signedToken
 }
 
 func ValidateToken(jwttoken string, secret string, req_username string) bool {
