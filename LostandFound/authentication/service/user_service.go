@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/models"
@@ -12,35 +13,25 @@ import (
 	"gorm.io/gorm"
 )
 
-// func userExists(db *gorm.DB, user *models.User) bool {
-// 	err := db.Where("username = ?", user.Username).First(user).Error
-// 	// log.Println("err: ", err)
-// 	if err != nil {
-// 		if errors.Is(err, gorm.ErrRecordNotFound) {
-// 			log.Printf("User with username '%s' not found.", user.Username)
-// 			return false
-// 		}
-// 	}
-// 	return true
-// }
-
 func CreateUser(user *models.User, db *gorm.DB) error {
 
+	var wg sync.WaitGroup
+	ch := make(chan bool)
+	wg.Add(1)
 	existingUser := &models.User{}
-	err := db.Where("username = ?", user.Username).First(existingUser).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Printf("User with username '%s' not found.", user.Username)
-		} else {
-			log.Println("User already exists")
+	go func() {
+		err := db.Where("username = ?", user.Username).First(existingUser).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				ch <- true
+				log.Printf("User with username '%s' not found.", user.Username)
+			} else {
+				ch <- false
+				log.Println("User already exists")
+			}
 		}
-	}
-
-	// if userExists(db, user) {
-	// 	log.Println("User already exists")
-	// } else if user.Username == "" || user.Passwordhash == "" || user.Pincode == 0 {
-	// 	return fmt.Errorf("some necessary field missing")
-	// }
+		wg.Done()
+	}()
 
 	passwordBytes := user.Passwordhash
 	salt := utils.GenerateSalt(8)
@@ -52,12 +43,14 @@ func CreateUser(user *models.User, db *gorm.DB) error {
 	}
 	user.Salt = string(salt)
 	user.Passwordhash = string(encodedPassword)
-	err = db.Create(user).Error
-	if err != nil {
-		log.Println("Error creating user:", err)
-		return fmt.Errorf("error creating user")
+	if <-ch {
+		err = db.Create(user).Error
+		if err != nil {
+			log.Println("Error creating user:", err)
+			return fmt.Errorf("error creating user")
+		}
 	}
 	log.Printf("New User Created at %v with username: %v and password: %v ", time.Now(), user.Username, string(passwordBytes))
-
+	wg.Wait()
 	return nil
 }

@@ -27,7 +27,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	//One DB Conn
 	db := config.InitializeDB()
-	var dataFromDB models.User //Read DB data from here
+	var dataFromDB *models.User //Read DB data from here
 	errr := db.Where("username = ?", userData.Username).Limit(1).Find(&dataFromDB).Error
 	if errr != nil {
 		log.Println("Error fetching data:", errr)
@@ -35,12 +35,13 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 	expiryTime := time.Now().Add(time.Minute * 60).Unix()
 
-	if service.ValidateCredentials(db, userData, &dataFromDB) {
-		jwtToken, err := service.GenJWT(&dataFromDB, expiryTime, secretKey)
+	if service.ValidateCredentials(db, userData, dataFromDB) {
+		jwtToken, err := service.GenJWT(dataFromDB, expiryTime, secretKey)
 		if err != nil {
 			log.Println("Generate token error !")
 			w.WriteHeader(http.StatusInternalServerError)
 		}
+		log.Printf("Generating token for user %s", userData.Username)
 		w.Header().Set("Authorization", "Bearer "+jwtToken)
 		w.WriteHeader(http.StatusOK)
 	} else {

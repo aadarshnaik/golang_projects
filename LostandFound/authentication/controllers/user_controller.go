@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/config"
 	"github.com/aadarshnaik/golang_projects/LostandFound/authentication/models"
@@ -10,6 +12,7 @@ import (
 )
 
 func CreateNewUser(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	contentType := r.Header.Get("Content-Type")
 	if contentType != "application/json" {
 		http.Error(w, "Invalid Content-Type. Expected application/json", http.StatusBadRequest)
@@ -25,6 +28,8 @@ func CreateNewUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
+		endtime := time.Since(start)
+		log.Println("Time taken:", endtime)
 		w.WriteHeader(http.StatusOK)
 	}
 }
