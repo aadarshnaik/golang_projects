@@ -1,0 +1,22 @@
+{
+    "datetime": 1728144120,
+    "hostname": "test-vm",
+    "os": {
+        "name": "Debian GNU/Linux",
+        "version": 11
+    },
+    "users": ["aadarshnaik","coolnaik_aadarsh", "amir", "altaf", "hussain", "ranbir", "deepika", "alia", "sonu"],
+    "disk_usage": 21,
+    "total_memory_in_kb": 998996,   
+    "free_memory_in_kb": 514748,
+    "packages": [
+        {
+            "name": "apt",
+            "version": "2.2.4"
+        },
+        {
+            "name": "bc",
+            "version": "1.07.1-2+b2"
+        }
+    ]
+}
